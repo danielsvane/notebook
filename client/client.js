@@ -22,6 +22,8 @@ $(function() {
     });
 
     function doRecognition () {
+        console.log(applicationKey, instanceId, stroker.getStrokes(), hmacKey);
+        //console.log(mathRecognizer.doSimpleRecognition());
         mathRecognizer.doSimpleRecognition(applicationKey, instanceId, stroker.getStrokes(), hmacKey).then(
             function (data) {
                 if (!instanceId) {
@@ -36,6 +38,11 @@ $(function() {
                 for (var i in results) {
                     if (results[i] instanceof MyScript.MathLaTexResultElement) {
                         katex.render(results[i].getValue(), latex);
+
+                        var exp = new algebra.parse(results[i].getValue());
+
+                        console.log(exp.toString());
+
                     }
                 }
             }
