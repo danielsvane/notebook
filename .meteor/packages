@@ -21,3 +21,6 @@ ejson
 spacebars
 check
 mizzao:bootstrap-3
+fds:jison-build
+joncursi:socket-io-client
+http

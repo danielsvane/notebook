@@ -1,7 +1,26 @@
 $(function() {
+
+    // HTTP.post("http://aleph.sagemath.org/service?accepted_tos=true", {code: "print 1+2"}, function(req, res){
+    //     console.log(req,res);
+    // });
+
+    $.post('http://aleph.sagemath.org/service?accepted_tos=true', {code: "print solve(x^2 + 3*x + 2, x)"}, function(data, lol,foo,bar) {
+        console.log(data.stdout);
+    });
+
+    // var xmlhttp = new XMLHttpRequest();
+    // var url = "http://aleph.sagemath.org/service?accepted_tos=true";
+
+    // xmlhttp.onreadystatechange = function() {
+    //     console.log(xmlhttp.responseText);
+    // }
+
+    // xmlhttp.open("POST", url, true);
+    // xmlhttp.send("print 1+2");
+
     var canvas = document.getElementById("canvas");
     var result = document.getElementById("result");
-    var latex = document.getElementById("katex");
+    var latexDiv = document.getElementById("katex");
     var context = canvas.getContext("2d");
     var pointerId;
 
@@ -21,8 +40,11 @@ $(function() {
         context.clearRect(0, 0, canvas.width, canvas.height);
     });
 
+    function trim(string) {
+        return string.replace(/ /g,'');
+    }
+
     function doRecognition () {
-        console.log(applicationKey, instanceId, stroker.getStrokes(), hmacKey);
         //console.log(mathRecognizer.doSimpleRecognition());
         mathRecognizer.doSimpleRecognition(applicationKey, instanceId, stroker.getStrokes(), hmacKey).then(
             function (data) {
@@ -33,13 +55,17 @@ $(function() {
                 }
                 var results = data.getMathDocument().getResultElements();
 
-                console.log(data);
-
                 for (var i in results) {
                     if (results[i] instanceof MyScript.MathLaTexResultElement) {
-                        katex.render(results[i].getValue(), latex);
+                        var latex = trim(results[i].value);
 
-                        var exp = new algebra.parse(results[i].getValue());
+                        var formula = Jison.Parsers.latex.parse(latex);
+                        console.log(latex);
+                        console.log(formula);
+
+                        katex.render(latex, latexDiv);
+
+                        var exp = algebra.parse(formula);
 
                         console.log(exp.toString());
 
@@ -51,7 +77,6 @@ $(function() {
 
     canvas.addEventListener('pointerdown', function (event) {
         if (!pointerId) {
-            console.log("down");
             pointerId = event.pointerId;
             event.preventDefault();
 
@@ -66,7 +91,6 @@ $(function() {
 
     canvas.addEventListener('pointermove', function (event) {
         if (pointerId === event.pointerId) {
-            console.log("move");
             event.preventDefault();
             context.lineTo(event.offsetX, event.offsetY);
             context.stroke();
@@ -77,7 +101,6 @@ $(function() {
 
     canvas.addEventListener('pointerup', function (event) {
         if (pointerId === event.pointerId) {
-            console.log("up");
             event.preventDefault();
 
             context.lineTo(event.offsetX, event.offsetY);
@@ -91,7 +114,6 @@ $(function() {
 
     canvas.addEventListener('pointerleave', function (event) {
         if (pointerId === event.pointerId) {
-            console.log("leave");
             event.preventDefault();
 
             context.lineTo(event.offsetX, event.offsetY);
