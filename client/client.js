@@ -1,23 +1,5 @@
 $(function() {
 
-    // HTTP.post("http://aleph.sagemath.org/service?accepted_tos=true", {code: "print 1+2"}, function(req, res){
-    //     console.log(req,res);
-    // });
-
-    $.post('http://aleph.sagemath.org/service?accepted_tos=true', {code: "print solve(x^2 + 3*x + 2, x)"}, function(data, lol,foo,bar) {
-        console.log(data.stdout);
-    });
-
-    // var xmlhttp = new XMLHttpRequest();
-    // var url = "http://aleph.sagemath.org/service?accepted_tos=true";
-
-    // xmlhttp.onreadystatechange = function() {
-    //     console.log(xmlhttp.responseText);
-    // }
-
-    // xmlhttp.open("POST", url, true);
-    // xmlhttp.send("print 1+2");
-
     var canvas = document.getElementById("canvas");
     var result = document.getElementById("result");
     var latexDiv = document.getElementById("katex");
@@ -58,16 +40,14 @@ $(function() {
                 for (var i in results) {
                     if (results[i] instanceof MyScript.MathLaTexResultElement) {
                         var latex = trim(results[i].value);
-
-                        var formula = Jison.Parsers.latex.parse(latex);
                         console.log(latex);
+                        var formula = Jison.Parsers.latex.parse(latex);
                         console.log(formula);
 
-                        katex.render(latex, latexDiv);
-
-                        var exp = algebra.parse(formula);
-
-                        console.log(exp.toString());
+                        $.post('http://aleph.sagemath.org/service?accepted_tos=true', {code: "print latex("+formula+")"}, function(data) {
+                            console.log(data);
+                            katex.render(latex+"="+data.stdout, latexDiv);
+                        });
 
                     }
                 }
