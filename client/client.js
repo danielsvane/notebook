@@ -26,6 +26,15 @@ $(function() {
         return string.replace(/ /g,'');
     }
 
+    function handleRecognitionResult(latex){
+        latex = trim(latex);
+        console.log("Recognition result: ", latex);
+        var formula = Jison.Parsers.latex.parse(latex);
+        console.log("Parsed recognition result: ", formula);
+
+        callSage(formula);
+    }
+
     function doRecognition () {
         //console.log(mathRecognizer.doSimpleRecognition());
         mathRecognizer.doSimpleRecognition(applicationKey, instanceId, stroker.getStrokes(), hmacKey).then(
@@ -39,16 +48,7 @@ $(function() {
 
                 for (var i in results) {
                     if (results[i] instanceof MyScript.MathLaTexResultElement) {
-                        var latex = trim(results[i].value);
-                        console.log(latex);
-                        var formula = Jison.Parsers.latex.parse(latex);
-                        console.log(formula);
-
-                        $.post('http://aleph.sagemath.org/service?accepted_tos=true', {code: "print latex("+formula+")"}, function(data) {
-                            console.log(data);
-                            katex.render(latex+"="+data.stdout, latexDiv);
-                        });
-
+                        handleRecognitionResult(results[i].value);
                     }
                 }
             }
